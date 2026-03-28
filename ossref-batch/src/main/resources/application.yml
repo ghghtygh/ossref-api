@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: ossref-batch
+  datasource:
+    url: jdbc:h2:mem:ossref
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+server:
+  port: 8081
+
+# GitHub API 토큰 (rate limit 해제를 위해 설정 권장)
+# 환경변수 GITHUB_TOKEN으로도 설정 가능
+github:
+  token: ${GITHUB_TOKEN:}

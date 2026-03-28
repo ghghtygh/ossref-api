@@ -1,0 +1,5 @@
+rootProject.name = 'ossref-api'
+
+include 'ossref-core'
+include 'ossref-batch'
+include 'ossref-api'
