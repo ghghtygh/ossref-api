@@ -10,7 +10,8 @@
 - Spring Boot 3.4.4
 - Spring Batch
 - Spring Data JPA
-- H2 (개발) / PostgreSQL (운영 전환 가능)
+- H2 (개발) / MySQL (운영)
+- Flyway (DB 마이그레이션)
 - Gradle 8.12 (멀티모듈)
 
 ---
@@ -115,7 +116,7 @@ curl http://localhost:8080/api/filters
 
 - 서버: `http://localhost:8080`
 - H2 콘솔: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:ossref`)
-- 시작 시 `data.sql`의 초기 데이터 6건이 자동 삽입됩니다.
+- 시작 시 Flyway 마이그레이션으로 초기 데이터 6건이 자동 삽입됩니다.
 
 ### Batch 서버
 
@@ -158,7 +159,9 @@ docker run -p 8080:8080 ossref-api
 # 환경변수 전달
 docker run -p 8080:8080 \
   -e GITHUB_TOKEN=ghp_xxxx \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/ossref \
+  -e SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/ossref \
+  -e SPRING_DATASOURCE_USERNAME=root \
+  -e SPRING_DATASOURCE_PASSWORD=secret \
   ossref-api
 ```
 
@@ -178,7 +181,7 @@ docker run -p 8080:8080 \
 |------|--------|------|
 | `GITHUB_TOKEN` | (없음) | GitHub API 인증 토큰 |
 | `SERVER_PORT` | `8080` | API 서버 포트 |
-| `SPRING_DATASOURCE_URL` | `jdbc:h2:mem:ossref` | DB 접속 URL |
+| `SPRING_DATASOURCE_URL` | `jdbc:h2:mem:ossref` (local) / `jdbc:mysql://...` (prod) | DB 접속 URL |
 | `SPRING_DATASOURCE_USERNAME` | `sa` | DB 사용자 |
 | `SPRING_DATASOURCE_PASSWORD` | (빈 값) | DB 비밀번호 |
 
@@ -188,14 +191,10 @@ docker run -p 8080:8080 \
 
 프론트엔드([ossref-web](https://github.com/ghghtygh/ossref-web))에서 이 API를 사용합니다.
 
-Kubernetes 환경에서는 nginx에 프록시 설정을 추가하거나, Ingress 레벨에서 `/api` 경로를 백엔드 서비스로 라우팅합니다.
+Kubernetes 환경에서는 Ingress 레벨에서 `/api` 경로를 백엔드 서비스로 라우팅합니다.
 
-```nginx
-# ossref-web nginx.conf에 추가
-location /api/ {
-    proxy_pass http://ossref-api-service:8080;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-}
+```
+ossref.gpglab.site
+    ├── /      → ossref-web (nginx, port 80)
+    └── /api   → ossref-api (Spring Boot, port 8080)
 ```
