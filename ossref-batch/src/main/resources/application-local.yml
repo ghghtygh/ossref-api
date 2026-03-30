@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:ossref
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    locations: classpath:db/migration
+  batch:
+    jdbc:
+      initialize-schema: always
