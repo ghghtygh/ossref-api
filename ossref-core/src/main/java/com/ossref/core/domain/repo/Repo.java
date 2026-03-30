@@ -1,4 +1,4 @@
-package com.ossref.core.domain;
+package com.ossref.core.domain.repo;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

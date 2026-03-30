@@ -1,4 +1,4 @@
-package com.ossref.core.github.dto;
+package com.ossref.core.infrastructure.github.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

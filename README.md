@@ -15,48 +15,64 @@
 
 ---
 
-## 프로젝트 구조
+## 아키텍처
+
+Clean Architecture + DDD 기반 구조를 채택하고 있습니다.
 
 ```
 ossref-api/
-├── ossref-core/          # 공통 모듈 (엔티티, 리포지토리, GitHub API 클라이언트)
+├── ossref-core/          # 핵심 모듈 (Clean Architecture)
 │   └── src/main/java/com/ossref/core/
-│       ├── domain/
-│       │   └── Repo.java                  # 레포지토리 엔티티
-│       ├── repository/
-│       │   └── RepoRepository.java        # JPA Repository (필터 검색 쿼리)
-│       └── github/
-│           ├── GithubApiClient.java       # GitHub REST API 클라이언트
-│           └── dto/                       # GitHub API 응답 DTO
+│       ├── domain/                        # Domain 레이어
+│       │   └── repo/
+│       │       ├── Repo.java              #   Aggregate Root (엔티티)
+│       │       ├── RepoRepository.java    #   Port (인터페이스)
+│       │       └── GithubPort.java        #   Output Port (GitHub 연동 추상화)
+│       │
+│       ├── application/                   # Application 레이어
+│       │   └── repo/
+│       │       ├── RepoQueryService.java  #   조회 유스케이스
+│       │       ├── RepoSyncService.java   #   동기화 유스케이스
+│       │       └── dto/                   #   유스케이스 입출력 DTO
+│       │
+│       └── infrastructure/                # Infrastructure 레이어
+│           ├── persistence/
+│           │   ├── RepoJpaRepository.java #   JPA Repository (Adapter)
+│           │   └── RepoRepositoryImpl.java#   RepoRepository 구현체
+│           └── github/
+│               ├── GithubApiAdapter.java  #   GithubPort 구현체
+│               └── dto/                   #   GitHub API 응답 DTO
 │
-├── ossref-api/           # REST API 모듈 (Spring Boot Application)
+├── ossref-api/           # REST API 모듈
 │   └── src/main/java/com/ossref/api/
-│       ├── OssrefApiApplication.java
-│       ├── controller/
-│       │   ├── RepoController.java        # GET /api/repos, GET /api/repos/{id}
-│       │   └── FilterController.java      # GET /api/filters
-│       ├── dto/                           # 응답 DTO
-│       └── config/
-│           ├── WebConfig.java             # CORS 설정
-│           └── GlobalExceptionHandler.java
+│       ├── controller/                    # API 엔드포인트
+│       ├── dto/                           # HTTP 응답 DTO
+│       └── config/                        # CORS, 예외 처리
 │
 ├── ossref-batch/         # 배치 모듈 (Spring Batch)
 │   └── src/main/java/com/ossref/batch/
-│       ├── OssrefBatchApplication.java
 │       └── job/
-│           └── GithubSyncJobConfig.java   # GitHub 데이터 동기화 Job
+│           └── GithubSyncJobConfig.java   # GitHub 동기화 Chunk Job
 │
 ├── Dockerfile
 ├── .github/workflows/ci-cd.yaml
-└── build.gradle          # 루트 빌드 스크립트
+└── build.gradle
 ```
 
-### 모듈 의존 관계
+### 의존성 방향
 
 ```
-ossref-api  ──→  ossref-core
-ossref-batch ──→  ossref-core
+Controller(api) ──→ Application Service(core) ──→ Domain(core)
+                                                       ↑
+  Batch Job(batch) ──→ Application Service(core)   Infrastructure(core) 가 구현
 ```
+
+- **Domain**: 비즈니스 규칙 + Port 인터페이스 (외부 의존 없음)
+- **Application**: 유스케이스 오케스트레이션 (Port를 통해 인프라 접근)
+- **Infrastructure**: Port 구현체 (JPA, GitHub API)
+- **api/batch**: Application 레이어만 의존
+
+ArchUnit 테스트로 이 의존성 방향이 자동 검증됩니다.
 
 ---
 

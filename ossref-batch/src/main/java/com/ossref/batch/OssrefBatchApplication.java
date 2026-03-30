@@ -3,11 +3,13 @@ package com.ossref.batch;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(scanBasePackages = {"com.ossref.batch", "com.ossref.core"})
+@SpringBootApplication
+@ComponentScan(basePackages = {"com.ossref.batch", "com.ossref.core"})
 @EntityScan(basePackages = "com.ossref.core.domain")
-@EnableJpaRepositories(basePackages = "com.ossref.core.repository")
+@EnableJpaRepositories(basePackages = "com.ossref.core.infrastructure.persistence")
 public class OssrefBatchApplication {
 
     public static void main(String[] args) {

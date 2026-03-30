@@ -1,13 +1,13 @@
-package com.ossref.core.repository;
+package com.ossref.core.infrastructure.persistence;
 
-import com.ossref.core.domain.Repo;
+import com.ossref.core.domain.repo.Repo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface RepoRepository extends JpaRepository<Repo, Long> {
+interface RepoJpaRepository extends JpaRepository<Repo, Long> {
 
     @Query("""
         SELECT r FROM Repo r
