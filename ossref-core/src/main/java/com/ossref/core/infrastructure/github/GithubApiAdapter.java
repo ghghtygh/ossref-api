@@ -116,10 +116,12 @@ public class GithubApiAdapter implements GithubPort {
             }
 
             return treeResponse.getTree().stream()
-                    .filter(node -> "tree".equals(node.getType()))
-                    .map(GithubTreeResponse.TreeNode::getPath)
-                    .filter(path -> path.chars().filter(c -> c == '/').count() <= 2)
-                    .filter(path -> !path.startsWith("."))
+                    .filter(node -> !node.getPath().startsWith("."))
+                    .filter(node -> node.getPath().chars().filter(c -> c == '/').count() <= 3)
+                    .map(node -> {
+                        String path = node.getPath();
+                        return "tree".equals(node.getType()) ? path + "/" : path;
+                    })
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.warn("트리 조회 실패 - {}/{}: {}", owner, repo, e.getMessage());
