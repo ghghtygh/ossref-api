@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         return ResponseEntity.badRequest()
-                .body(new ErrorResponse("BAD_REQUEST", "잘못된 요청 파라미터: " + e.getName()));
+                .body(new ErrorResponse("BAD_REQUEST", "요청 파라미터가 올바르지 않습니다."));
     }
 
     @ExceptionHandler(Exception.class)
